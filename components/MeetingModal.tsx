@@ -29,14 +29,16 @@ const MeetingModal = ({ isOpen, onClose, title, className, children, handleClick
   return (
       <Dialog open={isOpen} onOpenChange={onClose}>
           <DialogContent className="flex w-full max-w-[520px] flex-col gap-6 rounded-3xl border border-slate-200 bg-white px-8 py-9 text-slate-900 shadow-2xl dark:border-slate-800 dark:bg-slate-950 dark:text-white">
-              <div className="flex flex-col gap-4 text-center">
+              <DialogHeader className="flex flex-col gap-4 text-center">
                 {image && (
                     <div className="mx-auto flex size-16 items-center justify-center rounded-2xl bg-blue-50 text-blue-600 dark:bg-blue-500/10 dark:text-blue-200">
                         <Image src={image} alt="image" width={48} height={48}/>
                     </div>
                 )}
-                <h1 className={cn('text-2xl font-bold leading-tight text-slate-900 dark:text-white', className)}>{title}</h1>
-              </div>
+                <DialogTitle className={cn('text-2xl font-bold leading-tight text-slate-900 dark:text-white', className)}>
+                  {title}
+                </DialogTitle>
+              </DialogHeader>
               <div className="space-y-4 text-slate-600 dark:text-slate-300">
                 {children}
               </div>

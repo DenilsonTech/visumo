@@ -7,6 +7,7 @@ import '@stream-io/video-react-sdk/dist/css/styles.css';
 
 import { Toaster } from "@/components/ui/toaster"
 import 'react-datepicker/dist/react-datepicker.css'
+import { ThemeProvider } from "@/providers/ThemeProvider";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -24,7 +25,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <ClerkProvider 
         appearance={{
           layout: {
@@ -40,8 +41,15 @@ export default function RootLayout({
         }}
       >
           <body className={`${inter.className} bg-dark-2`}>
+            <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
             {children}
             <Toaster/>
+            </ThemeProvider>
           </body>
       </ClerkProvider>
     </html>  

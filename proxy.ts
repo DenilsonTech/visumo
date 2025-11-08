@@ -9,9 +9,9 @@ const protectedRoutes = createRouteMatcher([
   '/meeting(.*)',
 ]);
 
-export default clerkMiddleware((auth, req) => {
+export default clerkMiddleware(async (auth, req) => {
   if (protectedRoutes(req)) {
-    auth.protect();
+    await auth.protect();
   }
 });
 

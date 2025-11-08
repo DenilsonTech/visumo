@@ -1,49 +1,49 @@
 import type { LucideIcon } from "lucide-react";
 import {
-    CalendarDays,
-    History,
-    Home,
-    PlayCircle,
-    UserRound,
+    AlarmClockCheck,
+    CalendarCheck,
+    House,
+    Inbox,
+    NotebookTabs,
 } from "lucide-react";
 
 export type SidebarLink = {
     label: string;
     route: string;
-    description?: string;
     icon: LucideIcon;
+    accent: string;
 };
 
 export const sidebarLinks: SidebarLink[] = [
     {
         label: "Home",
         route: '/',
-        description: 'Dashboard overview',
-        icon: Home,
+        icon: House,
+        accent: 'border-transparent bg-blue-50 text-blue-600 dark:bg-blue-500/10 dark:text-blue-200',
     },
     {
         label: "Upcoming",
         route: '/upcoming',
-        description: 'Próximas reuniões',
-        icon: CalendarDays,
+        icon: CalendarCheck,
+        accent: 'border-transparent bg-violet-50 text-violet-600 dark:bg-violet-500/10 dark:text-violet-200',
     },
     {
         label: "History",
         route: '/previous',
-        description: 'Reuniões anteriores',
-        icon: History,
+        icon: AlarmClockCheck,
+        accent: 'border-transparent bg-amber-50 text-amber-600 dark:bg-amber-500/10 dark:text-amber-200',
     },
     {
         label: "Recordings",
         route: '/recordings',
-        description: 'Reveja gravações',
-        icon: PlayCircle,
+        icon: Inbox,
+        accent: 'border-transparent bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-200',
     },
     {
         label: "Personal Room",
         route: '/personal-room',
-        description: 'Sala pessoal',
-        icon: UserRound,
+        icon: NotebookTabs,
+        accent: 'border-transparent bg-pink-50 text-pink-600 dark:bg-pink-500/10 dark:text-pink-200',
     },
 ]
 

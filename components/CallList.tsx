@@ -67,9 +67,14 @@ const CallList = ({ type }: { type: 'ended' | 'upcoming' | 'recordings' }) => {
     <div className="w-full">
       {calls && calls.length > 0 ? (
         <div className="grid grid-cols-1 gap-5 xl:grid-cols-2">
-          {calls.map((meeting: Call | CallRecording) => (
+          {calls.map((meeting: Call | CallRecording, index) => {
+            const callMeeting = meeting as Call;
+            const recordingMeeting = meeting as CallRecording;
+            const key = callMeeting.id || recordingMeeting.id || recordingMeeting.url || `meeting-${index}`;
+
+            return (
             <MeetingCard
-              key={(meeting as Call).id}
+              key={key}
               icon={
                 type === 'ended'
                   ? '/icons/previous.svg'
@@ -100,7 +105,8 @@ const CallList = ({ type }: { type: 'ended' | 'upcoming' | 'recordings' }) => {
                   : () => router.push(`/meeting/${(meeting as Call).id}`)
               }
             />
-          ))}
+            )
+          })}
         </div>
       ) : (
         <div className="flex flex-col items-center justify-center rounded-3xl border border-dashed border-slate-300 bg-white/70 p-10 text-center text-slate-500 shadow-sm dark:border-slate-700 dark:bg-slate-900/60 dark:text-slate-300">

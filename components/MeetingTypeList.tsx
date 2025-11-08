@@ -22,6 +22,9 @@ import {
     Video,
 } from 'lucide-react'
 import { useGetCalls } from '@/hooks/useGetCalls'
+import Loader from './Loader'
+import { avatarImages } from './constants'
+import { cn } from '@/lib/utils'
 
 registerLocale('pt', pt);
 
@@ -42,47 +45,12 @@ const meetingNotes = [
     },
 ];
 
-const upcomingMeetings = [
-    {
-        id: 1,
-        title: 'Presentation Final Project',
-        date: 'Thursday, 4 April 2025',
-        time: '09:00 AM',
-        color: 'text-blue-600',
-        actions: ['Remind set'],
-    },
-    {
-        id: 2,
-        title: 'Product Roadmap Discussion',
-        date: 'April 20, 2025 • 10:00 – 12:00',
-        time: '',
-        color: 'text-slate-700',
-        actions: ['Remind set'],
-    },
-    {
-        id: 3,
-        title: 'Presentation Marketing Mix',
-        date: 'April 28, 2025 • 10:00 – 12:00',
-        time: '',
-        color: 'text-purple-600',
-        actions: ['Remind set'],
-    },
-    {
-        id: 4,
-        title: 'Discussion with Developer',
-        date: 'April 27, 2025 • 10:00 – 12:00',
-        time: '',
-        color: 'text-green-600',
-        actions: ['Set reminder'],
-    },
-];
-
 const MeetingTypeList = () => {
     const [meetingState, setMeetingState] = useState<'isScheduleMeeting' | 'isJoiningMeeting' | 'isIstantMeeting' | undefined >()
     const router = useRouter()
     const { user } = useUser()
     const client = useStreamVideoClient()
-    const { callRecordings } = useGetCalls();
+    const { callRecordings, upcomingCalls = [], isLoading: isLoadingCalls } = useGetCalls();
     const [values, setValues] = useState({
         dateTime: new Date(),
         description: '',
@@ -178,6 +146,34 @@ const MeetingTypeList = () => {
       });
     };
 
+    const upcomingMeetings = useMemo(() => {
+      if (!upcomingCalls) return [];
+      return [...upcomingCalls]
+        .filter((call) => {
+          const start = call.state?.startsAt ? new Date(call.state.startsAt) : null;
+          return start ? start.getTime() >= Date.now() - 5 * 60 * 1000 : false;
+        })
+        .sort((a, b) => {
+          const startA = a.state?.startsAt ? new Date(a.state.startsAt).getTime() : 0;
+          const startB = b.state?.startsAt ? new Date(b.state.startsAt).getTime() : 0;
+          return startA - startB;
+        })
+        .slice(0, 4);
+    }, [upcomingCalls]);
+
+    const formatUpcomingTime = (meeting: Call) => {
+      const start = meeting.state?.startsAt ? new Date(meeting.state.startsAt) : null;
+      if (!start) return 'Horário indisponível';
+
+      return `${start.toLocaleTimeString('pt-PT', {
+        hour: '2-digit',
+        minute: '2-digit',
+      })} • ${start.toLocaleDateString('pt-PT', {
+        day: '2-digit',
+        month: 'short',
+      })}`;
+    };
+
   return (
     <>
       <section className='space-y-8 text-slate-800'>
@@ -190,13 +186,6 @@ const MeetingTypeList = () => {
               </p>
             </div>
             <div className='flex flex-wrap gap-3'>
-              <button
-                onClick={() => router.push('/recordings')}
-                className='flex items-center gap-2 rounded-2xl border border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800'
-              >
-                <Upload size={18} />
-                Export transcripts
-              </button>
               <button
                 onClick={() => setMeetingState('isScheduleMeeting')}
                 className='flex items-center gap-2 rounded-2xl border border-blue-100 bg-blue-50 px-4 py-2.5 text-sm font-semibold text-blue-600 hover:bg-blue-100 dark:border-blue-500/40 dark:bg-blue-900/40 dark:text-blue-200'
@@ -271,8 +260,8 @@ const MeetingTypeList = () => {
                     A carregar últimas gravações...
                   </div>
                 ) : latestRecordings.length > 0 ? (
-                  latestRecordings.map((recording) => (
-                    <article key={recording.id || recording.filename} className='rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900'>
+                  latestRecordings.map((recording, index) => (
+                    <article key={recording.session_id || recording.filename || index} className='rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900'>
                       <div className='relative mb-3 flex h-32 w-full items-center justify-center rounded-xl bg-gradient-to-br from-blue-100 via-white to-slate-50 dark:from-slate-800 dark:via-slate-900'>
                         <PlayCircle className='h-12 w-12 text-blue-500 dark:text-blue-300' />
                         <span className='absolute left-3 top-3 rounded-full bg-black/70 px-3 py-1 text-xs font-semibold text-white'>
@@ -347,32 +336,78 @@ const MeetingTypeList = () => {
           <section className='rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900'>
             <div className='mb-4 flex items-center justify-between'>
               <h3 className='text-xl font-bold text-slate-900 dark:text-white'>Upcoming meetings</h3>
-              <button className='flex items-center gap-2 rounded-2xl border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-600 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300'>
+              <button
+                onClick={() => router.push('/upcoming')}
+                className='flex items-center gap-2 rounded-2xl border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-600 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300'
+              >
                 <CalendarDays size={14} />
-                Today
+                Ver calendário
               </button>
             </div>
             <div className='space-y-4'>
-              {upcomingMeetings.map((meeting) => (
-                <article key={meeting.id} className='rounded-2xl border border-slate-200 bg-white p-4 shadow-sm transition hover:border-blue-200 dark:border-slate-800 dark:bg-slate-900'>
-                  <div className={`mb-2 flex items-center gap-2 font-semibold ${meeting.color}`}>
-                    <PlayCircle size={18} />
-                    <h4>{meeting.title}</h4>
-                  </div>
-                  {meeting.time && (
-                    <p className='text-3xl font-bold text-slate-900 dark:text-white'>{meeting.time}</p>
-                  )}
-                  <p className='text-xs text-slate-500 dark:text-slate-400'>{meeting.date}</p>
-                  <div className='mt-3 flex flex-wrap gap-3 text-xs font-semibold'>
-                    {meeting.actions.map((action) => (
-                      <span key={action} className='flex items-center gap-1 rounded-full bg-slate-100 px-3 py-1 text-slate-600 dark:bg-slate-800 dark:text-slate-300'>
-                        <Sparkles size={14} />
-                        {action}
-                      </span>
-                    ))}
-                  </div>
-                </article>
-              ))}
+              {isLoadingCalls ? (
+                <div className='flex h-32 items-center justify-center'>
+                  <Loader />
+                </div>
+              ) : upcomingMeetings.length ? (
+                upcomingMeetings.map((meeting, index) => {
+                  const title =
+                    meeting.state?.custom?.title ||
+                    meeting.state?.custom?.description ||
+                    'Reunião agendada';
+                  const start = meeting.state?.startsAt ? new Date(meeting.state.startsAt) : null;
+                  const colorClasses = [
+                    'text-blue-600 bg-blue-50',
+                    'text-purple-600 bg-purple-50',
+                    'text-orange-600 bg-orange-50',
+                    'text-emerald-600 bg-emerald-50',
+                  ];
+                  const badgeClasses = colorClasses[index % colorClasses.length];
+
+                  return (
+                    <article key={meeting.id} className='rounded-2xl border border-slate-200 bg-white p-4 shadow-sm transition hover:border-blue-200 dark:border-slate-800 dark:bg-slate-900'>
+                      <div className={cn('mb-2 inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold', badgeClasses)}>
+                        <PlayCircle size={16} />
+                        {start ? start.toLocaleDateString('pt-PT', { weekday: 'short' }) : '—'}
+                      </div>
+                      <h4 className='text-base font-semibold text-slate-900 dark:text-white'>{title}</h4>
+                      <p className='mt-1 text-sm text-slate-500 dark:text-slate-400'>
+                        {formatUpcomingTime(meeting)}
+                      </p>
+                      <div className='mt-3 flex items-center justify-between'>
+                        <div className='flex -space-x-2'>
+                          {avatarImages.slice(0, 3).map((img, avatarIndex) => (
+                            <Image
+                              key={`${meeting.id}-avatar-${avatarIndex}`}
+                              src={img}
+                              alt='Participante'
+                              width={28}
+                              height={28}
+                              className='h-7 w-7 rounded-full border-2 border-white object-cover dark:border-slate-900'
+                            />
+                          ))}
+                          <div className='flex h-7 w-7 items-center justify-center rounded-full bg-slate-100 text-xs font-semibold text-slate-500 dark:bg-slate-800 dark:text-slate-300'>
+                            +2
+                          </div>
+                        </div>
+                        <button
+                          onClick={() => router.push(`/meeting/${meeting.id}`)}
+                          className='text-sm font-semibold text-blue-600 hover:underline dark:text-blue-300'
+                        >
+                          {start && start < new Date() ? 'Ver detalhes' : 'Entrar'}
+                        </button>
+                      </div>
+                    </article>
+                  );
+                })
+              ) : (
+                <div className='rounded-2xl border border-dashed border-slate-300 bg-slate-50/70 p-6 text-center text-slate-500 dark:border-slate-700 dark:bg-slate-900/60 dark:text-slate-300'>
+                  <p className='text-sm font-semibold'>Nenhuma reunião futura</p>
+                  <p className='text-xs text-slate-400 dark:text-slate-500'>
+                    Agende uma nova reunião para vê-la aqui.
+                  </p>
+                </div>
+              )}
             </div>
             <div className='mt-6 space-y-3'>
               <button
