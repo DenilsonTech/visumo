@@ -70,7 +70,7 @@ const CallList = ({ type }: { type: 'ended' | 'upcoming' | 'recordings' }) => {
           {calls.map((meeting: Call | CallRecording, index) => {
             const callMeeting = meeting as Call;
             const recordingMeeting = meeting as CallRecording;
-            const key = callMeeting.id || recordingMeeting.id || recordingMeeting.url || `meeting-${index}`;
+            const key = callMeeting.id || recordingMeeting.session_id || recordingMeeting.url || `meeting-${index}`;
 
             return (
             <MeetingCard
