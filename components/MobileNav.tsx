@@ -55,9 +55,9 @@ const MobileNav = () => {
                                             </span>
                                             <div className="flex flex-col">
                                                 <span>{link.label}</span>
-                                                {link.description && (
+                                                {link.label && (
                                                     <span className="text-xs font-normal text-slate-400">
-                                                        {link.description}
+                                                        {link.label}
                                                     </span>
                                                 )}
                                             </div>
