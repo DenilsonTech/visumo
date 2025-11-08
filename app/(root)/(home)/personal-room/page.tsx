@@ -1,17 +1,16 @@
 "use client"
 
 import { Button } from '@/components/ui/button';
-import { toast, useToast } from '@/components/ui/use-toast';
+import { useToast } from '@/components/ui/use-toast';
 import { useGetCallById } from '@/hooks/useGetCallById';
 import { useUser } from '@clerk/nextjs';
 import { useStreamVideoClient } from '@stream-io/video-react-sdk';
 import { useRouter } from 'next/navigation';
-import React from 'react'
 
-const Table = ({ title, description }: {title: string; description: string}) =>( 
-  <div className='flex flex-col items-start gap-2 xl:flex-row'>
-    <h1 className='text-base font-medium text-sky-1 lg:text-xl xl:min-w-32'>{title}</h1>
-    <h1 className='truncate text-sm font-bold max-sm:max-w-[320px] lg:text-xl'>{description}</h1>
+const InfoRow = ({ label, value }: { label: string; value: string }) => (
+  <div className='rounded-2xl border border-slate-200 bg-white p-4 text-left shadow-sm dark:border-slate-800 dark:bg-slate-900'>
+    <p className='text-xs font-semibold uppercase tracking-wide text-slate-400 dark:text-slate-500'>{label}</p>
+    <p className='mt-2 truncate text-base font-semibold text-slate-900 dark:text-white'>{value}</p>
   </div>
 )
 
@@ -22,15 +21,15 @@ const PersonalRoom = () => {
   const client = useStreamVideoClient();
   const router = useRouter()
 
-  const meetingLink = `${process.env.NEXT_PUBLIC_BASE_URL}/meeting/${meetingId}?personal=true`
+  const meetingLink = meetingId ? `${process.env.NEXT_PUBLIC_BASE_URL}/meeting/${meetingId}?personal=true` : ''
 
-  const { call } = useGetCallById(meetingId!);
+  const { call } = useGetCallById(meetingId || '');
 
   const startRoom = async () => {
-    if(!client || !user) return
+    if(!client || !user || !meetingId) return
     
     if (!call) {
-      const newCall = client.call('default', meetingId!)
+      const newCall = client.call('default', meetingId)
 
       await newCall.getOrCreate({
         data: {
@@ -43,26 +42,32 @@ const PersonalRoom = () => {
   }
 
   return (
-    <section className=' flex size-full flex-col gap-10 text-white'>
-      <h1 className='text-3xl font-bold'>
-        Sala Pessoal
-      </h1>
-      <div className='flex w-full flex-col gap-8 xl:max-w-[900px]'>
-    	  <Table title='Tópico' description={`Sala de ${user?.username}`}/>
-    	  <Table title='Id da Reunião' description={meetingId!}/>
-    	  <Table title='Link de convite' description={meetingLink!}/>
+    <section className='space-y-6 text-slate-900 dark:text-white'>
+      <div className='rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900'>
+        <h1 className='text-2xl font-bold text-slate-900 dark:text-white'>Sala pessoal</h1>
+        <p className='mt-1 text-sm text-slate-500 dark:text-slate-400'>
+          Use seu link privado para encontros rápidos ou sessões one-to-one. Compartilhe com segurança e comece em segundos.
+        </p>
       </div>
-      <div className='flex gap-5'>
-        <Button className='bg-blue-1' onClick={startRoom}>
-          Iniciar Reunião
+
+      <div className='grid gap-4 md:grid-cols-2 xl:max-w-4xl'>
+    	  <InfoRow label='Tópico' value={`Sala de ${user?.username || user?.firstName || 'você'}`}/>
+    	  <InfoRow label='ID da reunião' value={meetingId || '—'}/>
+    	  <InfoRow label='Link de convite' value={meetingLink}/>
+    	  <InfoRow label='Status' value={call ? 'Pronta para iniciar' : 'Aguardando criação'}/>
+      </div>
+
+      <div className='flex flex-wrap gap-4'>
+        <Button className='rounded-2xl bg-blue-500 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-blue-500/30 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-500' onClick={startRoom}>
+          Iniciar reunião
         </Button>
-        <Button className='bg-dark-3' onClick={() => {
+        <Button className='rounded-2xl border border-slate-200 bg-white px-6 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200' onClick={() => {
                 navigator.clipboard.writeText(meetingLink);
                 toast({
                   title: "Link Copiado",
                 });
               }}>
-                Copiar Convite
+                Copiar convite
         </Button>
       </div>
     </section>

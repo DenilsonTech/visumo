@@ -1,12 +1,14 @@
 import CallList from '@/components/CallList'
-import React from 'react'
 
 const Previous = () => {
   return (
-    <section className=' flex size-full flex-col gap-10 text-white'>
-      <h1 className='text-3xl font-bold'>
-        Anterior
-      </h1>
+    <section className='space-y-6 text-slate-900 dark:text-white'>
+      <div className='rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900'>
+        <h1 className='text-2xl font-bold text-slate-900 dark:text-white'>Histórico de reuniões</h1>
+        <p className='mt-1 text-sm text-slate-500 dark:text-slate-400'>
+          Revise reuniões encerradas, copie links e acesse notas para acompanhar decisões.
+        </p>
+      </div>
       <CallList type='ended'/>
     </section>
   )

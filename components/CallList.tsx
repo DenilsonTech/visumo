@@ -13,8 +13,6 @@ const CallList = ({ type }: { type: 'ended' | 'upcoming' | 'recordings' }) => {
   const { endedCalls, upcomingCalls, callRecordings, isLoading } =
     useGetCalls();
   const [recordings, setRecordings] = useState<CallRecording[]>([]);
-
-  console.log('upcoming: ',upcomingCalls);
   
   const getCalls = () => {
     switch (type) {
@@ -66,44 +64,51 @@ const CallList = ({ type }: { type: 'ended' | 'upcoming' | 'recordings' }) => {
   const noCallsMessage = getNoCallsMessage();
 
   return (
-    <div className="grid grid-cols-1 gap-5 xl:grid-cols-2">
+    <div className="w-full">
       {calls && calls.length > 0 ? (
-        calls.map((meeting: Call | CallRecording) => (
-          <MeetingCard
-            key={(meeting as Call).id}
-            icon={
-              type === 'ended'
-                ? '/icons/previous.svg'
-                : type === 'upcoming'
-                  ? '/icons/upcoming.svg'
-                  : '/icons/recordings.svg'
-            }
-            title={
-              (meeting as Call).state?.custom?.description ||
-              (meeting as CallRecording).filename?.substring(0, 20) ||
-              'Sem Descrição'
-            }
-            date={
-              (meeting as Call).state?.startsAt?.toLocaleString() ||
-              (meeting as CallRecording).start_time?.toLocaleString()
-            }
-            isPreviousMeeting={type === 'ended'}
-            link={
-              type === 'recordings'
-                ? (meeting as CallRecording).url
-                : `${process.env.NEXT_PUBLIC_BASE_URL}/meeting/${(meeting as Call).id}`
-            }
-            buttonIcon1={type === 'recordings' ? '/icons/play.svg' : undefined}
-            buttonText={type === 'recordings' ? 'Play' : 'Inicar'}
-            handleClick={
-              type === 'recordings'
-                ? () => router.push(`${(meeting as CallRecording).url}`)
-                : () => router.push(`/meeting/${(meeting as Call).id}`)
-            }
-          />
-        ))
+        <div className="grid grid-cols-1 gap-5 xl:grid-cols-2">
+          {calls.map((meeting: Call | CallRecording) => (
+            <MeetingCard
+              key={(meeting as Call).id}
+              icon={
+                type === 'ended'
+                  ? '/icons/previous.svg'
+                  : type === 'upcoming'
+                    ? '/icons/upcoming.svg'
+                    : '/icons/recordings.svg'
+              }
+              title={
+                (meeting as Call).state?.custom?.description ||
+                (meeting as CallRecording).filename?.substring(0, 20) ||
+                'Sem Descrição'
+              }
+              date={
+                (meeting as Call).state?.startsAt?.toLocaleString() ||
+                (meeting as CallRecording).start_time?.toLocaleString()
+              }
+              isPreviousMeeting={type === 'ended'}
+              link={
+                type === 'recordings'
+                  ? (meeting as CallRecording).url
+                  : `${process.env.NEXT_PUBLIC_BASE_URL}/meeting/${(meeting as Call).id}`
+              }
+              buttonIcon1={type === 'recordings' ? '/icons/play.svg' : undefined}
+              buttonText={type === 'recordings' ? 'Assistir' : 'Entrar'}
+              handleClick={
+                type === 'recordings'
+                  ? () => router.push(`${(meeting as CallRecording).url}`)
+                  : () => router.push(`/meeting/${(meeting as Call).id}`)
+              }
+            />
+          ))}
+        </div>
       ) : (
-        <h1 className="text-2xl font-bold text-white">{noCallsMessage}</h1>
+        <div className="flex flex-col items-center justify-center rounded-3xl border border-dashed border-slate-300 bg-white/70 p-10 text-center text-slate-500 shadow-sm dark:border-slate-700 dark:bg-slate-900/60 dark:text-slate-300">
+          <p className="text-lg font-semibold">{noCallsMessage}</p>
+          <p className="mt-1 text-sm text-slate-400 dark:text-slate-500">
+            Assim que criar ou terminar reuniões elas aparecem aqui.
+          </p>
+        </div>
       )}
     </div>
   );

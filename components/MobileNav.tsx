@@ -6,76 +6,70 @@ import {
     SheetContent,
     SheetTrigger,
 } from "@/components/ui/sheet"
-import Image from "next/image"
-import Link from "next/link"
 import { sidebarLinks } from "./constants"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
+import { Video } from "lucide-react"
+import Link from "next/link"
 
 
 const MobileNav = () => {
     const pathname = usePathname();
 
     return (
-        <section className='w-full max-w-[264px]'>
+        <div className='sm:hidden'>
             <Sheet>
-                <SheetTrigger>
-                    <Image
-                        src="/icons/hamburger.svg"
-                        width={36}
-                        height={36}
-                        alt="icon"
-                        className="cursor-pointer sm:hidden"
-                    />
+                <SheetTrigger className="inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-slate-200 bg-white text-slate-600 shadow-sm">
+                    <span className="sr-only">Abrir menu</span>
+                    <Video size={20} />
                 </SheetTrigger>
-                <SheetContent side="left" className="border-none bg-dark-1">
-                    <Link href="/" className='flex items-center gap-1'>
-                        <Image
-                            src="/icons/logo.svg"
-                            width={32}
-                            height={32}
-                            alt='Vizumo logo'
-                            className='max-sm:size-10'
-                        />
-                        <p className='text-[26px]  font-extrabold text-white'>Visumo</p>
-                    </Link>
+                <SheetContent side="left" className="border-none bg-white px-0 py-10 text-slate-900 dark:bg-slate-950 dark:text-white">
+                    <div className="px-6">
+                        <div className="mb-8 flex items-center gap-3">
+                            <div className="rounded-2xl bg-blue-500 p-2 text-white">
+                                <Video size={20} />
+                            </div>
+                            <div>
+                                <p className="text-lg font-bold">Meetingerz</p>
+                                <p className="text-xs text-slate-400">Meeting App Dashboard</p>
+                            </div>
+                        </div>
+                        <nav className="space-y-2">
+                            {sidebarLinks.map((link) => {
+                                const isActive = pathname === link.route || pathname.startsWith(`${link.route}/`);
+                                const Icon = link.icon;
 
-                    <div className="flex h-[calc(100vh-72px)] flex-col justify-between overflow-y-auto">
-                        <SheetClose>
-                            <section className="flex h-full flex-col gap-6 pt-16 text-white">
-                                {sidebarLinks.map((link) => {
-                                    const isActive = pathname === link.route;
-
-                                    return (
-                                        <SheetClose asChild key={link.route}>
-
-                                            <Link
-                                                href={link.route}
-                                                key={link.label}
-                                                className={cn('flex gap-4 items-center p-4 rounded-xl w-full max-w-60', {
-                                                    'bg-blue-1': isActive,
-                                                })}
-                                            >
-                                                <Image
-                                                    src={link.imageUrl}
-                                                    alt={link.label}
-                                                    width={20}
-                                                    height={20}
-                                                />
-                                                <p className='font-semibold'>
-                                                    {link.label}
-                                                </p>
-                                            </Link>
-                                        </SheetClose> 
-                                    )
-                                })}
-                            </section>
-                        </SheetClose>
+                                return (
+                                    <SheetClose asChild key={link.route}>
+                                        <Link
+                                            href={link.route}
+                                            className={cn(
+                                                'flex items-center gap-3 rounded-xl px-3 py-3 text-base font-semibold',
+                                                isActive
+                                                    ? 'bg-blue-50 text-blue-600'
+                                                    : 'text-slate-600 hover:bg-slate-100'
+                                            )}
+                                        >
+                                            <span className={cn('flex h-10 w-10 items-center justify-center rounded-xl border', isActive ? 'border-blue-100 bg-white' : 'border-slate-200 bg-slate-50')}>
+                                                <Icon size={18} />
+                                            </span>
+                                            <div className="flex flex-col">
+                                                <span>{link.label}</span>
+                                                {link.description && (
+                                                    <span className="text-xs font-normal text-slate-400">
+                                                        {link.description}
+                                                    </span>
+                                                )}
+                                            </div>
+                                        </Link>
+                                    </SheetClose>
+                                );
+                            })}
+                        </nav>
                     </div>
                 </SheetContent>
             </Sheet>
-
-        </section>
+        </div>
     )
 }
 

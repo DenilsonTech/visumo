@@ -1,28 +1,49 @@
-export const sidebarLinks = [
+import type { LucideIcon } from "lucide-react";
+import {
+    CalendarDays,
+    History,
+    Home,
+    PlayCircle,
+    UserRound,
+} from "lucide-react";
+
+export type SidebarLink = {
+    label: string;
+    route: string;
+    description?: string;
+    icon: LucideIcon;
+};
+
+export const sidebarLinks: SidebarLink[] = [
     {
-        label: "Inicio",
+        label: "Home",
         route: '/',
-        imageUrl: '/icons/Home.svg'
+        description: 'Dashboard overview',
+        icon: Home,
     },
     {
-        label: "Próximos",
+        label: "Upcoming",
         route: '/upcoming',
-        imageUrl: '/icons/upcoming.svg'
+        description: 'Próximas reuniões',
+        icon: CalendarDays,
     },
     {
-        label: "Anterior",
+        label: "History",
         route: '/previous',
-        imageUrl: '/icons/previous.svg'
+        description: 'Reuniões anteriores',
+        icon: History,
     },
     {
-        label: "Gravações",
+        label: "Recordings",
         route: '/recordings',
-        imageUrl: '/icons/Video.svg'
+        description: 'Reveja gravações',
+        icon: PlayCircle,
     },
     {
-        label: "Sala Pessoal",
+        label: "Personal Room",
         route: '/personal-room',
-        imageUrl: '/icons/add-personal.svg'
+        description: 'Sala pessoal',
+        icon: UserRound,
     },
 ]
 
